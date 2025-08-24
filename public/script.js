@@ -19,6 +19,7 @@ class NumWebApp {
         this.modeBtns = {
             dec: document.getElementById('mode-dec'),
             hex: document.getElementById('mode-hex'),
+            oct: document.getElementById('mode-oct'),
             bin: document.getElementById('mode-bin')
         };
 
@@ -30,6 +31,7 @@ class NumWebApp {
         // Display elements
         this.decValue = document.getElementById('dec-value');
         this.hexValue = document.getElementById('hex-value');
+        this.octValue = document.getElementById('oct-value');
         this.binValue = document.getElementById('bin-value');
         this.englishValue = document.getElementById('english-value');
         this.romanValue = document.getElementById('roman-value');
@@ -97,6 +99,10 @@ class NumWebApp {
                 case 'h':
                     e.preventDefault();
                     this.setMode('hex');
+                    break;
+                case 'o':
+                    e.preventDefault();
+                    this.setMode('oct');
                     break;
                 case 'b':
                     e.preventDefault();
@@ -209,6 +215,7 @@ class NumWebApp {
         if (data.representations) {
             this.decValue.textContent = data.representations.decimal;
             this.hexValue.textContent = data.representations.hexadecimal;
+            this.octValue.textContent = data.representations.octal;
             this.binValue.textContent = this.formatBinaryForDisplay(data.representations.binary);
             this.englishValue.textContent = data.representations.english;
             this.romanValue.textContent = data.representations.roman;
@@ -232,13 +239,14 @@ class NumWebApp {
         });
 
         // Update input mode indicator
-        const modeNames = { dec: 'DEC', hex: 'HEX', bin: 'BIN' };
+        const modeNames = { dec: 'DEC', hex: 'HEX', oct: 'OCT', bin: 'BIN' };
         this.inputModeSpan.textContent = `${modeNames[this.currentMode]}>`;
 
         // Update input placeholder
         const placeholders = {
             dec: 'Enter decimal number...',
             hex: 'Enter hex number...',
+            oct: 'Enter octal number...',
             bin: 'Enter binary number...'
         };
         this.numberInput.placeholder = placeholders[this.currentMode];

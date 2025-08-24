@@ -53,6 +53,9 @@ class NumberConverter {
                 return '0x' + num.toString(16).toUpperCase().padStart(hexDigits, '0');
             case 'bin':
                 return num.toString(2).padStart(bitWidth, '0');
+            case 'oct':
+                const octDigits = Math.max(1, Math.ceil(bitWidth / 3));
+                return '0o' + num.toString(8).padStart(octDigits, '0');
             default:
                 throw new Error(`Unknown base: ${base}`);
         }
@@ -191,6 +194,7 @@ class NumberConverter {
             decimal: this.formatNumber(num, 'dec'),
             hexadecimal: this.formatNumber(num, 'hex'),
             binary: this.formatNumber(num, 'bin'),
+            octal: this.formatNumber(num, 'oct'),
             english: this.numberToEnglish(num),
             roman: this.numberToRoman(num)
         };

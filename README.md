@@ -4,7 +4,7 @@ This is a web-based version of the Num command-line tool - an interactive number
 
 ## Features
 
-- **Multi-base conversion**: Convert between decimal, hexadecimal, and binary
+- **Multi-base conversion**: Convert between decimal, hexadecimal, octal, and binary
 - **Bitwise operations**: Invert, shift left/right, reverse bit order
 - **Configurable bit width**: Support for 1-64 bit registers
 - **Special representations**: English words and Roman numerals
@@ -71,15 +71,16 @@ The application will be accessible at `http://localhost:3001`. With Docker Compo
 ## Usage
 
 ### Web Interface
-- **Input**: Enter numbers in the current mode (DEC/HEX/BIN)
-- **Mode switching**: Click DEC, HEX, or BIN buttons to change input mode
+- **Input**: Enter numbers in the current mode (DEC/HEX/OCT/BIN)
+- **Mode switching**: Click DEC, HEX, OCT, or BIN buttons to change input mode
 - **Bit width**: Adjust the register width (1-64 bits)
 - **Operations**: Click operation buttons to apply bitwise operations
 - **Copy**: Click the 📋 button next to any value to copy to clipboard
 
 ### Keyboard Shortcuts
 - **D** - Switch to decimal mode
-- **H** - Switch to hexadecimal mode  
+- **H** - Switch to hexadecimal mode
+- **O** - Switch to octal mode
 - **B** - Switch to binary mode
 - **I** - Invert bits
 - **L** - Shift left one bit

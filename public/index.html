@@ -17,7 +17,7 @@
     <div class="container">
         <header>
             <h1>Num - Arbitrary Bit-Length Base Converter</h1>
-            <p>Convert between hex, decimal, and binary with bitwise operations</p>
+            <p>Convert between hex, decimal, octal, and binary with bitwise operations</p>
         </header>
 
         <main>
@@ -26,6 +26,7 @@
                 <div class="mode-selector">
                     <button id="mode-dec" class="mode-btn active" data-mode="dec">DEC</button>
                     <button id="mode-hex" class="mode-btn" data-mode="hex">HEX</button>
+                    <button id="mode-oct" class="mode-btn" data-mode="oct">OCT</button>
                     <button id="mode-bin" class="mode-btn" data-mode="bin">BIN</button>
                 </div>
                 
@@ -53,6 +54,11 @@
                         <label>Hexadecimal:</label>
                         <span id="hex-value" class="value">0x00000000</span>
                         <button class="copy-btn" data-value="hex-value" title="Copy to clipboard">📋</button>
+                    </div>
+                    <div class="repr-item">
+                        <label>Octal:</label>
+                        <span id="oct-value" class="value">0o00000000000</span>
+                        <button class="copy-btn" data-value="oct-value" title="Copy to clipboard">📋</button>
                     </div>
                     <div class="repr-item">
                         <label>Binary:</label>
@@ -109,8 +115,8 @@
                     <div class="help-content">
                         <h3>Usage:</h3>
                         <ul>
-                            <li><strong>Input:</strong> Enter numbers in the current mode (DEC/HEX/BIN)</li>
-                            <li><strong>Modes:</strong> Click DEC, HEX, or BIN to change input mode</li>
+                            <li><strong>Input:</strong> Enter numbers in the current mode (DEC/HEX/OCT/BIN)</li>
+                            <li><strong>Modes:</strong> Click DEC, HEX, OCT, or BIN to change input mode</li>
                             <li><strong>Bit Width:</strong> Change register width (1-64 bits)</li>
                             <li><strong>Operations:</strong> Apply bitwise operations to the current value</li>
                             <li><strong>Copy:</strong> Click 📋 to copy any value to clipboard</li>
@@ -120,6 +126,7 @@
                         <ul>
                             <li><strong>D</strong> - Switch to decimal mode</li>
                             <li><strong>H</strong> - Switch to hexadecimal mode</li>
+                            <li><strong>O</strong> - Switch to octal mode</li>
                             <li><strong>B</strong> - Switch to binary mode</li>
                             <li><strong>I</strong> - Invert bits</li>
                             <li><strong>L</strong> - Shift left</li>

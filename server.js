@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Global state (in a real app, this would be session-based)
 let converter = new NumberConverter(32);
 let currentNumber = 0;
-let currentMode = 'dec'; // dec, hex, bin
+let currentMode = 'dec'; // dec, hex, bin, oct
 
 // API Routes
 
@@ -38,6 +38,7 @@ app.post('/api/number', (req, res) => {
             case 'dec': radix = 10; break;
             case 'hex': radix = 16; break;
             case 'bin': radix = 2; break;
+            case 'oct': radix = 8; break;
             default: radix = 10;
         }
         
@@ -56,11 +57,11 @@ app.post('/api/number', (req, res) => {
 app.post('/api/mode', (req, res) => {
     const { mode } = req.body;
     
-    if (['dec', 'hex', 'bin'].includes(mode)) {
+    if (['dec', 'hex', 'bin', 'oct'].includes(mode)) {
         currentMode = mode;
         res.json({ mode: currentMode });
     } else {
-        res.status(400).json({ error: 'Invalid mode. Must be dec, hex, or bin' });
+        res.status(400).json({ error: 'Invalid mode. Must be dec, hex, bin, or oct' });
     }
 });
 
