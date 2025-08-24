@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Num - Interactive Number Base Converter</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Num - Interactive Number Base Converter</h1>
+            <p>Convert between hex, decimal, and binary with bitwise operations</p>
+        </header>
+
+        <main>
+            <!-- Input Section -->
+            <section class="input-section">
+                <div class="mode-selector">
+                    <button id="mode-dec" class="mode-btn active" data-mode="dec">DEC</button>
+                    <button id="mode-hex" class="mode-btn" data-mode="hex">HEX</button>
+                    <button id="mode-bin" class="mode-btn" data-mode="bin">BIN</button>
+                </div>
+                
+                <div class="input-group">
+                    <input type="text" id="number-input" placeholder="Enter a number..." autocomplete="off">
+                    <span class="input-mode">DEC></span>
+                </div>
+                
+                <div class="bit-width-control">
+                    <label for="bit-width">Bit Width:</label>
+                    <input type="number" id="bit-width" value="32" min="1" max="64" step="1">
+                </div>
+            </section>
+
+            <!-- Display Section -->
+            <section class="display-section">
+                <h2>Current Value</h2>
+                <div class="representations">
+                    <div class="repr-item">
+                        <label>Decimal:</label>
+                        <span id="dec-value" class="value">0</span>
+                        <button class="copy-btn" data-value="dec-value" title="Copy to clipboard">📋</button>
+                    </div>
+                    <div class="repr-item">
+                        <label>Hexadecimal:</label>
+                        <span id="hex-value" class="value">0x00000000</span>
+                        <button class="copy-btn" data-value="hex-value" title="Copy to clipboard">📋</button>
+                    </div>
+                    <div class="repr-item">
+                        <label>Binary:</label>
+                        <span id="bin-value" class="value binary">00000000000000000000000000000000</span>
+                        <button class="copy-btn" data-value="bin-value" title="Copy to clipboard">📋</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Operations Section -->
+            <section class="operations-section">
+                <h2>Bitwise Operations</h2>
+                <div class="operations-grid">
+                    <button id="op-invert" class="op-btn">
+                        <span class="op-symbol">~</span>
+                        <span class="op-name">Invert Bits</span>
+                    </button>
+                    <button id="op-shift-left" class="op-btn">
+                        <span class="op-symbol"><<</span>
+                        <span class="op-name">Shift Left</span>
+                    </button>
+                    <button id="op-shift-right" class="op-btn">
+                        <span class="op-symbol">>></span>
+                        <span class="op-name">Shift Right</span>
+                    </button>
+                    <button id="op-reverse" class="op-btn">
+                        <span class="op-symbol">⥁</span>
+                        <span class="op-name">Reverse Bits</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Special Representations Section -->
+            <section class="special-section">
+                <h2>Special Representations</h2>
+                <div class="special-displays">
+                    <div class="special-item">
+                        <label>English:</label>
+                        <span id="english-value" class="value">zero</span>
+                        <button class="copy-btn" data-value="english-value" title="Copy to clipboard">📋</button>
+                    </div>
+                    <div class="special-item">
+                        <label>Roman:</label>
+                        <span id="roman-value" class="value">Number out of range (1-3999)</span>
+                        <button class="copy-btn" data-value="roman-value" title="Copy to clipboard">📋</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Help Section -->
+            <section class="help-section">
+                <details>
+                    <summary>Help & Keyboard Shortcuts</summary>
+                    <div class="help-content">
+                        <h3>Usage:</h3>
+                        <ul>
+                            <li><strong>Input:</strong> Enter numbers in the current mode (DEC/HEX/BIN)</li>
+                            <li><strong>Modes:</strong> Click DEC, HEX, or BIN to change input mode</li>
+                            <li><strong>Bit Width:</strong> Change register width (1-64 bits)</li>
+                            <li><strong>Operations:</strong> Apply bitwise operations to the current value</li>
+                            <li><strong>Copy:</strong> Click 📋 to copy any value to clipboard</li>
+                        </ul>
+                        
+                        <h3>Keyboard Shortcuts:</h3>
+                        <ul>
+                            <li><strong>D</strong> - Switch to decimal mode</li>
+                            <li><strong>H</strong> - Switch to hexadecimal mode</li>
+                            <li><strong>B</strong> - Switch to binary mode</li>
+                            <li><strong>I</strong> - Invert bits</li>
+                            <li><strong>L</strong> - Shift left</li>
+                            <li><strong>R</strong> - Shift right</li>
+                            <li><strong>V</strong> - Reverse bits</li>
+                        </ul>
+                        
+                        <p><em>Note: Extraneous characters (spaces, punctuation) in input are ignored, making it easy to paste values from other applications.</em></p>
+                    </div>
+                </details>
+            </section>
+        </main>
+
+        <footer>
+            <p>Web version of the Num command-line tool</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
