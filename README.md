@@ -45,4 +45,8 @@ This version is implemented using only client-side logic, so everything is locat
 
 This web app was generated from the original command-line lisp tool, `num.lisp` (https://github.com/jlowder/num). It was
 "vibe coded" into this standalone HTML version (and also into a full node application) with Warp version v0.2025.08.20.08.11.stable_03
-(https://warp.dev) using claude 4 sonnet, all in a single prompt.
+(https://warp.dev) using claude 4 sonnet. This was completed initially all in one prompt. However, Gemini Code Assist conducted
+an automated code review and correctly noticed that `bigint` support was necessary to handle bitlengths over 53 due to the way
+javascript handles integers. I then prompted Warp again to add bigint support, and the results are what you see here.
+
+
