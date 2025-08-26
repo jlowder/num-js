@@ -39,7 +39,7 @@ This version is implemented using only client-side logic, so everything is locat
 - Extraneous characters (spaces, punctuation) in input are ignored
 - Just like the CLI version, this makes it easy to paste values from other applications
 - The web version maintains the same core functionality as the original Lisp implementation
-- State is maintained on the client-side within the browser session.
+- State is maintained on the client-side within the browser session
 
 ## History
 
