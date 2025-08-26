@@ -12,7 +12,7 @@ const NumberConverter = class {
     integerToBitArray(num) {
         const bigNum = BigInt(num);
         if (bigNum === 0n) return [0];
-        
+
         const bits = [];
         let n = bigNum < 0n ? -bigNum : bigNum;
         while (n > 0n) {
@@ -37,22 +37,13 @@ const NumberConverter = class {
         // Remove all non-alphanumeric characters (equivalent to regex-replace-all in Lisp)
         const cleaned = str.replace(/[^0-9a-fA-F]/g, '');
         if (cleaned === '') return 0n;
-        
         try {
-            // Use BigInt constructor with radix for parsing
-            if (radix === 10) {
-                return BigInt(cleaned);
-            } else {
-                // For non-decimal bases, convert manually
-                let result = 0n;
-                const base = BigInt(radix);
-                for (let i = 0; i < cleaned.length; i++) {
-                    const digit = parseInt(cleaned[i], radix);
-                    if (isNaN(digit)) return 0n;
-                    result = result * base + BigInt(digit);
-                }
-                return result;
-            }
+            const prefix = {
+                16: '0x',
+                8: '0o',
+                2: '0b'
+            }[radix];
+            return BigInt(prefix ? prefix + cleaned : cleaned);
         } catch (error) {
             return 0n;
         }
