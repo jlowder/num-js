@@ -443,7 +443,7 @@
                 
                 <div class="bit-width-control">
                     <label for="bit-width">Bit Width:</label>
-                    <input type="number" id="bit-width" value="32" min="1" max="64" step="1">
+                    <input type="number" id="bit-width" value="32" min="1" step="1">
                 </div>
             </section>
 
@@ -523,7 +523,7 @@
                         <ul>
                             <li><strong>Input:</strong> Enter numbers in the current mode (DEC/HEX/OCT/BIN)</li>
                             <li><strong>Modes:</strong> Click DEC, HEX, OCT, or BIN to change input mode</li>
-                            <li><strong>Bit Width:</strong> Change register width (1-64 bits)</li>
+                            <li><strong>Bit Width:</strong> Change register width (arbitrary bit lengths supported)</li>
                             <li><strong>Operations:</strong> Apply bitwise operations to the current value</li>
                             <li><strong>Copy:</strong> Click 📋 to copy any value to clipboard</li>
                         </ul>
@@ -554,7 +554,7 @@
     <script>
         /**
          * Core utilities for number conversion and bitwise operations
-         * Port of num.lisp functionality to JavaScript
+         * Port of num.lisp functionality to JavaScript with BigInt support
          */
         class NumberConverter {
             constructor(bitWidth = 32) {
@@ -562,25 +562,26 @@
             }
 
             /**
-             * Convert integer to bit array (equivalent to integer->bit-vector in Lisp)
+             * Convert BigInt to bit array (equivalent to integer->bit-vector in Lisp)
              */
             integerToBitArray(num) {
-                if (num === 0) return [0];
+                const bigNum = BigInt(num);
+                if (bigNum === 0n) return [0];
                 
                 const bits = [];
-                let n = Math.abs(num);
-                while (n > 0) {
-                    bits.unshift(n & 1);
-                    n = Math.floor(n / 2);
+                let n = bigNum < 0n ? -bigNum : bigNum;
+                while (n > 0n) {
+                    bits.unshift(Number(n & 1n));
+                    n = n >> 1n;
                 }
                 return bits;
             }
 
             /**
-             * Convert bit array to integer (equivalent to bit-vector->integer in Lisp)
+             * Convert bit array to BigInt (equivalent to bit-vector->integer in Lisp)
              */
             bitArrayToInteger(bits) {
-                return bits.reduce((acc, bit) => acc * 2 + bit, 0);
+                return bits.reduce((acc, bit) => acc * 2n + BigInt(bit), 0n);
             }
 
             /**
@@ -595,20 +596,21 @@
             }
 
             /**
-             * Format number for display in different bases
+             * Format BigInt for display in different bases
              */
             formatNumber(num, base, bitWidth = this.bitWidth) {
+                const bigNum = BigInt(num);
                 switch (base) {
                     case 'dec':
-                        return num.toString(10);
+                        return bigNum.toString(10);
                     case 'hex':
                         const hexDigits = Math.max(1, Math.ceil(bitWidth / 4));
-                        return '0x' + num.toString(16).toUpperCase().padStart(hexDigits, '0');
+                        return '0x' + bigNum.toString(16).toUpperCase().padStart(hexDigits, '0');
                     case 'bin':
-                        return num.toString(2).padStart(bitWidth, '0');
+                        return bigNum.toString(2).padStart(bitWidth, '0');
                     case 'oct':
                         const octDigits = Math.max(1, Math.ceil(bitWidth / 3));
-                        return '0o' + num.toString(8).padStart(octDigits, '0');
+                        return '0o' + bigNum.toString(8).padStart(octDigits, '0');
                     default:
                         throw new Error(`Unknown base: ${base}`);
                 }
@@ -616,14 +618,23 @@
 
             /**
              * Parse number from string with given radix, ignoring non-alphanumeric characters
+             * Returns BigInt for arbitrary precision
              */
             parseNumber(str, radix = 10) {
                 // Remove all non-alphanumeric characters (equivalent to regex-replace-all in Lisp)
                 const cleaned = str.replace(/[^0-9a-fA-F]/g, '');
-                if (cleaned === '') return 0;
-                
-                const num = parseInt(cleaned, radix);
-                return isNaN(num) ? 0 : num;
+                if (cleaned === '') return 0n;
+
+                try {
+                    const prefix = {
+                        16: '0x',
+                        8: '0o',
+                        2: '0b'
+                    }[radix];
+                    return BigInt(prefix ? prefix + cleaned : cleaned);
+                } catch (error) {
+                    return 0n;
+                }
             }
 
             /**
@@ -663,15 +674,16 @@
             }
 
             /**
-             * Convert number to English words
+             * Convert BigInt to English words
              */
             numberToEnglish(num) {
-                if (num === 0) return 'zero';
+                const bigNum = BigInt(num);
+                if (bigNum === 0n) return 'zero';
                 
                 const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
                 const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
                 const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
-                const scales = ['', 'thousand', 'million', 'billion', 'trillion'];
+                const scales = ['', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion'];
                 
                 function convertChunk(n) {
                     let result = '';
@@ -695,34 +707,46 @@
                     return result;
                 }
                 
-                if (num < 0) {
-                    return 'negative ' + this.numberToEnglish(-num);
+                if (bigNum < 0n) {
+                    return 'negative ' + this.numberToEnglish(-bigNum);
+                }
+                
+                // Handle very large numbers
+                if (bigNum >= BigInt(10) ** BigInt(scales.length * 3)) {
+                    return `${bigNum.toString()} (too large for word representation)`;
                 }
                 
                 const chunks = [];
                 let scaleIndex = 0;
+                let workingNum = bigNum;
                 
-                while (num > 0) {
-                    const chunk = num % 1000;
+                while (workingNum > 0n) {
+                    const chunk = Number(workingNum % 1000n);
                     if (chunk > 0) {
                         let chunkStr = convertChunk(chunk);
-                        if (scaleIndex > 0) {
+                        if (scaleIndex > 0 && scaleIndex < scales.length) {
                             chunkStr += ' ' + scales[scaleIndex];
                         }
                         chunks.unshift(chunkStr);
                     }
-                    num = Math.floor(num / 1000);
+                    workingNum = workingNum / 1000n;
                     scaleIndex++;
+                    
+                    if (scaleIndex >= scales.length) {
+                        // If we exceed our scale names, just return the numeric representation
+                        return `${bigNum.toString()} (too large for word representation)`;
+                    }
                 }
                 
                 return chunks.join(' ');
             }
 
             /**
-             * Convert number to Roman numerals
+             * Convert BigInt to Roman numerals
              */
             numberToRoman(num) {
-                if (num <= 0 || num > 3999) {
+                const bigNum = BigInt(num);
+                if (bigNum <= 0n || bigNum > 3999n) {
                     return 'Number out of range (1-3999)';
                 }
                 
@@ -730,10 +754,11 @@
                 const numerals = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
                 
                 let result = '';
+                let workingNum = Number(bigNum);
                 for (let i = 0; i < values.length; i++) {
-                    while (num >= values[i]) {
+                    while (workingNum >= values[i]) {
                         result += numerals[i];
-                        num -= values[i];
+                        workingNum -= values[i];
                     }
                 }
                 return result;
@@ -761,7 +786,7 @@
         class NumWebApp {
             constructor() {
                 this.currentMode = 'dec';
-                this.currentNumber = 0;
+                this.currentNumber = 0n;
                 this.bitWidth = 32;
                 this.converter = new NumberConverter(this.bitWidth);
                 
@@ -891,7 +916,7 @@
 
             updateNumber(value) {
                 if (!value.trim()) {
-                    this.currentNumber = 0;
+                    this.currentNumber = 0n;
                     this.updateDisplay();
                     return;
                 }
@@ -914,7 +939,7 @@
             }
 
             setBitWidth(width) {
-                if (width > 0 && width <= 64) {
+                if (width > 0) {
                     this.bitWidth = width;
                     this.converter = new NumberConverter(width);
                     this.updateDisplay();
