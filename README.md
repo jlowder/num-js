@@ -1,6 +1,6 @@
 # Num Web App
 
-This is a web-based version of the Num command-line tool - an interactive number base converter with bitwise operations.
+This is a web-based version of the `num` command-line tool - an arbitrary-bitwidth base converter with bitwise operations.
 
 ## Features
 
@@ -14,63 +14,10 @@ This is a web-based version of the Num command-line tool - an interactive number
 
 ## Quick Start
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+This version is implemented using only client-side logic, so everything is located in one static HTML file. Just open
+`num-js.html` in your browser.
 
-2. Start the server:
-   ```bash
-   npm start
-   ```
-
-3. Open your browser and navigate to `http://localhost:3001`
-
-For development with auto-restart:
-```bash
-npm run dev
-```
-
-## Docker Usage
-
-Alternatively, you can run the application using Docker Compose:
-
-### Prerequisites
-- Docker
-- Docker Compose
-
-### Running with Docker Compose
-
-1. Start the application:
-   ```bash
-   docker-compose up
-   ```
-
-2. Run in detached mode (background):
-   ```bash
-   docker-compose up -d
-   ```
-
-3. Rebuild and start (if you've made changes to the Dockerfile):
-   ```bash
-   docker-compose up --build
-   ```
-
-4. Stop the application:
-   ```bash
-   docker-compose down
-   ```
-
-5. View logs:
-   ```bash
-   docker-compose logs -f
-   ```
-
-The application will be accessible at `http://localhost:3001`. With Docker Compose, any changes you make to your source code will automatically trigger nodemon to restart the server inside the container.
-
-## Usage
-
-### Web Interface
+### Usage
 - **Input**: Enter numbers in the current mode (DEC/HEX/OCT/BIN)
 - **Mode switching**: Click DEC, HEX, OCT, or BIN buttons to change input mode
 - **Bit width**: Adjust the register width (1-64 bits)
@@ -87,29 +34,6 @@ The application will be accessible at `http://localhost:3001`. With Docker Compo
 - **R** - Shift right one bit
 - **V** - Reverse bit order
 
-## API Endpoints
-
-The web app exposes REST API endpoints:
-
-- `GET /api/state` - Get current application state
-- `POST /api/number` - Set number value
-- `POST /api/mode` - Change input mode
-- `POST /api/bitwidth` - Set bit width
-- `POST /api/invert` - Invert bits
-- `POST /api/shift-left` - Shift left
-- `POST /api/shift-right` - Shift right
-- `POST /api/reverse-bits` - Reverse bit order
-- `GET /api/english` - Get English word representation
-- `GET /api/roman` - Get Roman numeral representation
-
-## Files
-
-- `server.js` - Express server and API endpoints
-- `utils.js` - Core number conversion and bitwise operations
-- `public/index.html` - Web interface
-- `public/styles.css` - Styling and responsive design
-- `public/script.js` - Client-side JavaScript and API communication
-
 ## Notes
 
 - Extraneous characters (spaces, punctuation) in input are ignored
@@ -117,6 +41,8 @@ The web app exposes REST API endpoints:
 - The web version maintains the same core functionality as the original Lisp implementation
 - State is maintained server-side (in a real app, this would be session-based)
 
-## Original CLI Version
+## History
 
-This web app is based on the original `num.lisp` command-line tool. Both versions provide the same core functionality but with different interfaces - terminal vs. web browser.
+This web app was generated from the original command-line lisp tool, `num.lisp` (https://github.com/jlowder/num). It was
+"vibe coded" into this standalone HTML version (and also into a full node application) with Warp version v0.2025.08.20.08.11.stable_03
+(https://warp.dev) using claude 4 sonnet, all in a single prompt.

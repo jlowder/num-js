@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Num - Arbitrary Bit-Length Base Converter</title>
+    
+    <!-- Self-hosted favicon as data URL -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzY2N2VlYSIvPgo8dGV4dCB4PSIxNiIgeT0iMjIiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TjwvdGV4dD4KPC9zdmc+Cg==">
+    <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzY2N2VlYSIvPgo8dGV4dCB4PSIxNiIgeT0iMjIiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TjwvdGV4dD4KPC9zdmc+Cg==">
+    
+    <style>
+        /* Reset and base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            min-height: 100vh;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+            border-bottom: 3px solid #667eea;
+        }
+
+        header h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .mode-btn:hover {
+            background: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-mode {
+            font-weight: bold;
+            color: #667eea;
+            min-width: 45px;
+            font-size: 1.1rem;
+        }
+
+        #number-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        #number-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .bit-width-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bit-width-control label {
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        #bit-width {
+            padding: 0.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 4px;
+            width: 80px;
+            font-family: inherit;
+        }
+
+        /* Display Section */
+        .display-section {
+            background: #2d3748;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .display-section h2 {
+            margin-bottom: 1rem;
+            color: #e2e8f0;
+            text-align: center;
+        }
+
+        .representations {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .repr-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        .repr-item label {
+            font-weight: bold;
+            color: #a0aec0;
+            min-width: 120px;
+        }
+
+        .value {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 1.1rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem 0.8rem;
+            border-radius: 4px;
+            flex: 1;
+            margin: 0 1rem;
+            word-break: break-all;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .binary {
+            letter-spacing: 1px;
+            word-spacing: 4px;
+        }
+
+        /* Copy button */
+        .copy-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        /* Operations Section */
+        .operations-section {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border-left: 5px solid #48bb78;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .operations-section h2 {
+            margin-bottom: 1rem;
+            color: #2d3748;
+            text-align: center;
+        }
+
+        .operations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .op-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .op-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(72, 187, 120, 0.3);
+        }
+
+        .op-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .op-symbol {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .op-name {
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+
+        /* Special Section */
+        .special-section {
+            background: #fef5e7;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border-left: 5px solid #ed8936;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .special-section h2 {
+            margin-bottom: 1rem;
+            color: #2d3748;
+            text-align: center;
+        }
+
+        .special-displays {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .special-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(237, 137, 54, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .special-item label {
+            font-weight: bold;
+            color: #2d3748;
+            min-width: 80px;
+        }
+
+        .special-item .value {
+            background: rgba(237, 137, 54, 0.1);
+            color: #2d3748;
+            border: 1px solid rgba(237, 137, 54, 0.3);
+        }
+
+        .special-item .copy-btn {
+            color: #2d3748;
+            border-color: rgba(237, 137, 54, 0.5);
+        }
+
+        .special-item .copy-btn:hover {
+            background: rgba(237, 137, 54, 0.2);
+        }
+
+        /* Help Section */
+        .help-section {
+            margin-bottom: 2rem;
+        }
+
+        .help-section details {
+            background: #e6fffa;
+            border-radius: 8px;
+            border-left: 5px solid #38b2ac;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .help-section summary {
+            padding: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2d3748;
+            user-select: none;
+        }
+
+        .help-content {
+            padding: 0 1rem 1rem 1rem;
+            color: #2d3748;
+        }
+
+        .help-content h3 {
+            margin: 1rem 0 0.5rem 0;
+            color: #38b2ac;
+        }
+
+        .help-content ul {
+            margin-left: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .help-content li {
+            margin-bottom: 0.3rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .operations-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .repr-item, .special-item {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: stretch;
+            }
+            
+            .repr-item label, .special-item label {
+                min-width: auto;
+                text-align: center;
+            }
+            
+            .value {
+                margin: 0;
+                text-align: center;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .copy-success {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        /* Focus styles for accessibility */
+        button:focus, input:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Num - Arbitrary Bit-Length Base Converter</h1>
+            <p>Convert between hex, decimal, octal, and binary with bitwise operations</p>
+        </header>
+
+        <main>
+            <!-- Input Section -->
+            <section class="input-section">
+                <div class="mode-selector">
+                    <button id="mode-dec" class="mode-btn active" data-mode="dec">DEC</button>
+                    <button id="mode-hex" class="mode-btn" data-mode="hex">HEX</button>
+                    <button id="mode-oct" class="mode-btn" data-mode="oct">OCT</button>
+                    <button id="mode-bin" class="mode-btn" data-mode="bin">BIN</button>
+                </div>
+                
+                <div class="input-group">
+                    <span class="input-mode">DEC></span>
+                    <input type="text" id="number-input" placeholder="Enter a number..." autocomplete="off">
+                </div>
+                
+                <div class="bit-width-control">
+                    <label for="bit-width">Bit Width:</label>
+                    <input type="number" id="bit-width" value="32" min="1" max="64" step="1">
+                </div>
+            </section>
+
+            <!-- Display Section -->
+            <section class="display-section">
+                <h2>Current Value</h2>
+                <div class="representations">
+                    <div class="repr-item">
+                        <label>Decimal:</label>
+                        <span id="dec-value" class="value">0</span>
+                        <button class="copy-btn" data-value="dec-value" title="Copy to clipboard">📋</button>
+                    </div>
+                    <div class="repr-item">
+                        <label>Hexadecimal:</label>
+                        <span id="hex-value" class="value">0x00000000</span>
+                        <button class="copy-btn" data-value="hex-value" title="Copy to clipboard">📋</button>
+                    </div>
+                    <div class="repr-item">
+                        <label>Octal:</label>
+                        <span id="oct-value" class="value">0o00000000000</span>
+                        <button class="copy-btn" data-value="oct-value" title="Copy to clipboard">📋</button>
+                    </div>
+                    <div class="repr-item">
+                        <label>Binary:</label>
+                        <span id="bin-value" class="value binary">00000000000000000000000000000000</span>
+                        <button class="copy-btn" data-value="bin-value" title="Copy to clipboard">📋</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Operations Section -->
+            <section class="operations-section">
+                <h2>Bitwise Operations</h2>
+                <div class="operations-grid">
+                    <button id="op-invert" class="op-btn">
+                        <span class="op-symbol">~</span>
+                        <span class="op-name">Invert Bits</span>
+                    </button>
+                    <button id="op-shift-left" class="op-btn">
+                        <span class="op-symbol"><<</span>
+                        <span class="op-name">Shift Left</span>
+                    </button>
+                    <button id="op-shift-right" class="op-btn">
+                        <span class="op-symbol">>></span>
+                        <span class="op-name">Shift Right</span>
+                    </button>
+                    <button id="op-reverse" class="op-btn">
+                        <span class="op-symbol">⥁</span>
+                        <span class="op-name">Reverse Bits</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Special Representations Section -->
+            <section class="special-section">
+                <h2>Special Representations</h2>
+                <div class="special-displays">
+                    <div class="special-item">
+                        <label>English:</label>
+                        <span id="english-value" class="value">zero</span>
+                        <button class="copy-btn" data-value="english-value" title="Copy to clipboard">📋</button>
+                    </div>
+                    <div class="special-item">
+                        <label>Roman:</label>
+                        <span id="roman-value" class="value">Number out of range (1-3999)</span>
+                        <button class="copy-btn" data-value="roman-value" title="Copy to clipboard">📋</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Help Section -->
+            <section class="help-section">
+                <details>
+                    <summary>Help & Keyboard Shortcuts</summary>
+                    <div class="help-content">
+                        <h3>Usage:</h3>
+                        <ul>
+                            <li><strong>Input:</strong> Enter numbers in the current mode (DEC/HEX/OCT/BIN)</li>
+                            <li><strong>Modes:</strong> Click DEC, HEX, OCT, or BIN to change input mode</li>
+                            <li><strong>Bit Width:</strong> Change register width (1-64 bits)</li>
+                            <li><strong>Operations:</strong> Apply bitwise operations to the current value</li>
+                            <li><strong>Copy:</strong> Click 📋 to copy any value to clipboard</li>
+                        </ul>
+                        
+                        <h3>Keyboard Shortcuts:</h3>
+                        <ul>
+                            <li><strong>D</strong> - Switch to decimal mode</li>
+                            <li><strong>H</strong> - Switch to hexadecimal mode</li>
+                            <li><strong>O</strong> - Switch to octal mode</li>
+                            <li><strong>B</strong> - Switch to binary mode</li>
+                            <li><strong>I</strong> - Invert bits</li>
+                            <li><strong>L</strong> - Shift left</li>
+                            <li><strong>R</strong> - Shift right</li>
+                            <li><strong>V</strong> - Reverse bits</li>
+                        </ul>
+                        
+                        <p><em>Note: Extraneous characters (spaces, punctuation) in input are ignored, making it easy to paste values from other applications.</em></p>
+                    </div>
+                </details>
+            </section>
+        </main>
+
+        <footer>
+            <p>Standalone version of the <a href="https://github.com/jlowder/num" target="_blank" rel="noopener noreferrer">num command-line lisp tool</a></p>
+        </footer>
+    </div>
+
+    <script>
+        /**
+         * Core utilities for number conversion and bitwise operations
+         * Port of num.lisp functionality to JavaScript
+         */
+        class NumberConverter {
+            constructor(bitWidth = 32) {
+                this.bitWidth = bitWidth;
+            }
+
+            /**
+             * Convert integer to bit array (equivalent to integer->bit-vector in Lisp)
+             */
+            integerToBitArray(num) {
+                if (num === 0) return [0];
+                
+                const bits = [];
+                let n = Math.abs(num);
+                while (n > 0) {
+                    bits.unshift(n & 1);
+                    n = Math.floor(n / 2);
+                }
+                return bits;
+            }
+
+            /**
+             * Convert bit array to integer (equivalent to bit-vector->integer in Lisp)
+             */
+            bitArrayToInteger(bits) {
+                return bits.reduce((acc, bit) => acc * 2 + bit, 0);
+            }
+
+            /**
+             * Pad bit array to specified width
+             */
+            padBitArray(bits, width) {
+                const padding = width - bits.length;
+                if (padding > 0) {
+                    return new Array(padding).fill(0).concat(bits);
+                }
+                return bits.slice(-width); // Truncate if too long
+            }
+
+            /**
+             * Format number for display in different bases
+             */
+            formatNumber(num, base, bitWidth = this.bitWidth) {
+                switch (base) {
+                    case 'dec':
+                        return num.toString(10);
+                    case 'hex':
+                        const hexDigits = Math.max(1, Math.ceil(bitWidth / 4));
+                        return '0x' + num.toString(16).toUpperCase().padStart(hexDigits, '0');
+                    case 'bin':
+                        return num.toString(2).padStart(bitWidth, '0');
+                    case 'oct':
+                        const octDigits = Math.max(1, Math.ceil(bitWidth / 3));
+                        return '0o' + num.toString(8).padStart(octDigits, '0');
+                    default:
+                        throw new Error(`Unknown base: ${base}`);
+                }
+            }
+
+            /**
+             * Parse number from string with given radix, ignoring non-alphanumeric characters
+             */
+            parseNumber(str, radix = 10) {
+                // Remove all non-alphanumeric characters (equivalent to regex-replace-all in Lisp)
+                const cleaned = str.replace(/[^0-9a-fA-F]/g, '');
+                if (cleaned === '') return 0;
+                
+                const num = parseInt(cleaned, radix);
+                return isNaN(num) ? 0 : num;
+            }
+
+            /**
+             * Bitwise invert operation
+             */
+            invert(num) {
+                const bits = this.padBitArray(this.integerToBitArray(num), this.bitWidth);
+                const inverted = bits.map(bit => bit ^ 1);
+                return this.bitArrayToInteger(inverted);
+            }
+
+            /**
+             * Shift right operation
+             */
+            shiftRight(num) {
+                const bits = this.padBitArray(this.integerToBitArray(num), this.bitWidth);
+                const shifted = [0].concat(bits.slice(0, this.bitWidth - 1));
+                return this.bitArrayToInteger(shifted);
+            }
+
+            /**
+             * Shift left operation
+             */
+            shiftLeft(num) {
+                const bits = this.padBitArray(this.integerToBitArray(num), this.bitWidth);
+                const shifted = bits.slice(1).concat([0]);
+                return this.bitArrayToInteger(shifted);
+            }
+
+            /**
+             * Reverse bit order
+             */
+            reverseBits(num) {
+                const bits = this.padBitArray(this.integerToBitArray(num), this.bitWidth);
+                const reversed = bits.slice().reverse();
+                return this.bitArrayToInteger(reversed);
+            }
+
+            /**
+             * Convert number to English words
+             */
+            numberToEnglish(num) {
+                if (num === 0) return 'zero';
+                
+                const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+                const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+                const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+                const scales = ['', 'thousand', 'million', 'billion', 'trillion'];
+                
+                function convertChunk(n) {
+                    let result = '';
+                    
+                    if (n >= 100) {
+                        result += ones[Math.floor(n / 100)] + ' hundred';
+                        n %= 100;
+                        if (n > 0) result += ' ';
+                    }
+                    
+                    if (n >= 20) {
+                        result += tens[Math.floor(n / 10)];
+                        n %= 10;
+                        if (n > 0) result += '-' + ones[n];
+                    } else if (n >= 10) {
+                        result += teens[n - 10];
+                    } else if (n > 0) {
+                        result += ones[n];
+                    }
+                    
+                    return result;
+                }
+                
+                if (num < 0) {
+                    return 'negative ' + this.numberToEnglish(-num);
+                }
+                
+                const chunks = [];
+                let scaleIndex = 0;
+                
+                while (num > 0) {
+                    const chunk = num % 1000;
+                    if (chunk > 0) {
+                        let chunkStr = convertChunk(chunk);
+                        if (scaleIndex > 0) {
+                            chunkStr += ' ' + scales[scaleIndex];
+                        }
+                        chunks.unshift(chunkStr);
+                    }
+                    num = Math.floor(num / 1000);
+                    scaleIndex++;
+                }
+                
+                return chunks.join(' ');
+            }
+
+            /**
+             * Convert number to Roman numerals
+             */
+            numberToRoman(num) {
+                if (num <= 0 || num > 3999) {
+                    return 'Number out of range (1-3999)';
+                }
+                
+                const values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+                const numerals = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
+                
+                let result = '';
+                for (let i = 0; i < values.length; i++) {
+                    while (num >= values[i]) {
+                        result += numerals[i];
+                        num -= values[i];
+                    }
+                }
+                return result;
+            }
+
+            /**
+             * Get all representations of a number
+             */
+            getAllRepresentations(num) {
+                return {
+                    decimal: this.formatNumber(num, 'dec'),
+                    hexadecimal: this.formatNumber(num, 'hex'),
+                    binary: this.formatNumber(num, 'bin'),
+                    octal: this.formatNumber(num, 'oct'),
+                    english: this.numberToEnglish(num),
+                    roman: this.numberToRoman(num)
+                };
+            }
+        }
+
+        /**
+         * Client-side JavaScript for the Num web application
+         * All functionality runs locally without server communication
+         */
+        class NumWebApp {
+            constructor() {
+                this.currentMode = 'dec';
+                this.currentNumber = 0;
+                this.bitWidth = 32;
+                this.converter = new NumberConverter(this.bitWidth);
+                
+                this.initializeElements();
+                this.attachEventListeners();
+                this.updateDisplay();
+            }
+
+            initializeElements() {
+                // Mode buttons
+                this.modeBtns = {
+                    dec: document.getElementById('mode-dec'),
+                    hex: document.getElementById('mode-hex'),
+                    oct: document.getElementById('mode-oct'),
+                    bin: document.getElementById('mode-bin')
+                };
+
+                // Input elements
+                this.numberInput = document.getElementById('number-input');
+                this.inputModeSpan = document.querySelector('.input-mode');
+                this.bitWidthInput = document.getElementById('bit-width');
+
+                // Display elements
+                this.decValue = document.getElementById('dec-value');
+                this.hexValue = document.getElementById('hex-value');
+                this.octValue = document.getElementById('oct-value');
+                this.binValue = document.getElementById('bin-value');
+                this.englishValue = document.getElementById('english-value');
+                this.romanValue = document.getElementById('roman-value');
+
+                // Operation buttons
+                this.opBtns = {
+                    invert: document.getElementById('op-invert'),
+                    shiftLeft: document.getElementById('op-shift-left'),
+                    shiftRight: document.getElementById('op-shift-right'),
+                    reverse: document.getElementById('op-reverse')
+                };
+
+                // Copy buttons
+                this.copyBtns = document.querySelectorAll('.copy-btn');
+            }
+
+            attachEventListeners() {
+                // Mode buttons
+                Object.keys(this.modeBtns).forEach(mode => {
+                    this.modeBtns[mode].addEventListener('click', () => this.setMode(mode));
+                });
+
+                // Number input
+                this.numberInput.addEventListener('input', this.debounce(() => {
+                    this.updateNumber(this.numberInput.value);
+                }, 300));
+
+                this.numberInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        this.updateNumber(this.numberInput.value);
+                    }
+                });
+
+                // Bit width input
+                this.bitWidthInput.addEventListener('change', () => {
+                    this.setBitWidth(parseInt(this.bitWidthInput.value));
+                });
+
+                // Operation buttons
+                this.opBtns.invert.addEventListener('click', () => this.performOperation('invert'));
+                this.opBtns.shiftLeft.addEventListener('click', () => this.performOperation('shift-left'));
+                this.opBtns.shiftRight.addEventListener('click', () => this.performOperation('shift-right'));
+                this.opBtns.reverse.addEventListener('click', () => this.performOperation('reverse-bits'));
+
+                // Copy buttons
+                this.copyBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const targetId = e.target.getAttribute('data-value');
+                        const targetElement = document.getElementById(targetId);
+                        this.copyToClipboard(targetElement.textContent, btn);
+                    });
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    // Only process shortcuts when not typing in input fields
+                    if (e.target.tagName === 'INPUT') return;
+                    
+                    const key = e.key.toLowerCase();
+                    switch (key) {
+                        case 'd':
+                            e.preventDefault();
+                            this.setMode('dec');
+                            break;
+                        case 'h':
+                            e.preventDefault();
+                            this.setMode('hex');
+                            break;
+                        case 'o':
+                            e.preventDefault();
+                            this.setMode('oct');
+                            break;
+                        case 'b':
+                            e.preventDefault();
+                            this.setMode('bin');
+                            break;
+                        case 'i':
+                            e.preventDefault();
+                            this.performOperation('invert');
+                            break;
+                        case 'l':
+                            e.preventDefault();
+                            this.performOperation('shift-left');
+                            break;
+                        case 'r':
+                            e.preventDefault();
+                            this.performOperation('shift-right');
+                            break;
+                        case 'v':
+                            e.preventDefault();
+                            this.performOperation('reverse-bits');
+                            break;
+                    }
+                });
+            }
+
+            setMode(mode) {
+                this.currentMode = mode;
+                this.updateModeUI();
+            }
+
+            updateNumber(value) {
+                if (!value.trim()) {
+                    this.currentNumber = 0;
+                    this.updateDisplay();
+                    return;
+                }
+
+                try {
+                    let radix;
+                    switch (this.currentMode) {
+                        case 'dec': radix = 10; break;
+                        case 'hex': radix = 16; break;
+                        case 'bin': radix = 2; break;
+                        case 'oct': radix = 8; break;
+                        default: radix = 10;
+                    }
+                    
+                    this.currentNumber = this.converter.parseNumber(value.toString(), radix);
+                    this.updateDisplay();
+                } catch (error) {
+                    console.error('Failed to update number:', error);
+                }
+            }
+
+            setBitWidth(width) {
+                if (width > 0 && width <= 64) {
+                    this.bitWidth = width;
+                    this.converter = new NumberConverter(width);
+                    this.updateDisplay();
+                }
+            }
+
+            performOperation(operation) {
+                try {
+                    switch (operation) {
+                        case 'invert':
+                            this.currentNumber = this.converter.invert(this.currentNumber);
+                            break;
+                        case 'shift-left':
+                            this.currentNumber = this.converter.shiftLeft(this.currentNumber);
+                            break;
+                        case 'shift-right':
+                            this.currentNumber = this.converter.shiftRight(this.currentNumber);
+                            break;
+                        case 'reverse-bits':
+                            this.currentNumber = this.converter.reverseBits(this.currentNumber);
+                            break;
+                    }
+                    
+                    this.updateDisplay();
+                    // Clear input to show the result
+                    this.numberInput.value = '';
+                } catch (error) {
+                    console.error(`Failed to perform ${operation}:`, error);
+                }
+            }
+
+            updateDisplay() {
+                const representations = this.converter.getAllRepresentations(this.currentNumber);
+                
+                this.decValue.textContent = representations.decimal;
+                this.hexValue.textContent = representations.hexadecimal;
+                this.octValue.textContent = representations.octal;
+                this.binValue.textContent = this.formatBinaryForDisplay(representations.binary);
+                this.englishValue.textContent = representations.english;
+                this.romanValue.textContent = representations.roman;
+            }
+
+            updateModeUI() {
+                // Update active mode button
+                Object.keys(this.modeBtns).forEach(mode => {
+                    this.modeBtns[mode].classList.toggle('active', mode === this.currentMode);
+                });
+
+                // Update input mode indicator
+                const modeNames = { dec: 'DEC', hex: 'HEX', oct: 'OCT', bin: 'BIN' };
+                this.inputModeSpan.textContent = `${modeNames[this.currentMode]}>`;
+
+                // Update input placeholder
+                const placeholders = {
+                    dec: 'Enter decimal number...',
+                    hex: 'Enter hex number...',
+                    oct: 'Enter octal number...',
+                    bin: 'Enter binary number...'
+                };
+                this.numberInput.placeholder = placeholders[this.currentMode];
+            }
+
+            formatBinaryForDisplay(binary) {
+                // Add spaces every 4 bits for readability
+                return binary.replace(/(.{4})/g, '$1 ').trim();
+            }
+
+            async copyToClipboard(text, button) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    
+                    // Visual feedback
+                    button.classList.add('copy-success');
+                    const originalText = button.textContent;
+                    button.textContent = '✓';
+                    
+                    setTimeout(() => {
+                        button.classList.remove('copy-success');
+                        button.textContent = originalText;
+                    }, 1000);
+                } catch (error) {
+                    console.error('Failed to copy to clipboard:', error);
+                    
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        button.textContent = '✓';
+                        setTimeout(() => {
+                            button.textContent = '📋';
+                        }, 1000);
+                    } catch (fallbackError) {
+                        console.error('Fallback copy failed:', fallbackError);
+                    }
+                    document.body.removeChild(textArea);
+                }
+            }
+
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+        }
+
+        // Initialize the application when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new NumWebApp();
+        });
+    </script>
+</body>
+</html>
