@@ -1042,17 +1042,19 @@
             }
 
             async copyToClipboard(text, button) {
+                const copyIconHTML = button.innerHTML;
+                const checkIconHTML = '<svg class="copy-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
                 try {
                     await navigator.clipboard.writeText(text);
                     
                     // Visual feedback
                     button.classList.add('copy-success');
-                    const originalText = button.textContent;
-                    button.textContent = '✓';
+                    button.innerHTML = checkIconHTML;
                     
                     setTimeout(() => {
                         button.classList.remove('copy-success');
-                        button.textContent = originalText;
+                        button.innerHTML = copyIconHTML;
                     }, 1000);
                 } catch (error) {
                     console.error('Failed to copy to clipboard:', error);
@@ -1065,9 +1067,9 @@
                     textArea.select();
                     try {
                         document.execCommand('copy');
-                        button.textContent = '✓';
+                        button.innerHTML = checkIconHTML;
                         setTimeout(() => {
-                            button.textContent = '📋';
+                            button.innerHTML = copyIconHTML;
                         }, 1000);
                     } catch (fallbackError) {
                         console.error('Fallback copy failed:', fallbackError);
