@@ -17,6 +17,10 @@ This is a web-based version of the `num` command-line tool - an arbitrary-bitwid
 This version is implemented using only client-side logic, so everything is located in one static HTML file. Just open
 `num-js.html` in your browser.
 
+Click here to try it out:
+
+[num-js](https://jlowder.github.io/num-js/num-js.html)
+
 ### Usage
 - **Input**: Enter numbers in the current mode (DEC/HEX/OCT/BIN)
 - **Mode switching**: Click DEC, HEX, OCT, or BIN buttons to change input mode
