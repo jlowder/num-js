@@ -1,0 +1,21 @@
+{
+  "name": "NumCalc - Arbitrary Bit-Length Base Converter",
+  "short_name": "NumCalc",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#404040",
+  "theme_color": "#404040",
+  "description": "A calculator for converting numbers between bases with arbitrary bit-length.",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
