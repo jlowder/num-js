@@ -381,6 +381,52 @@
         #footer-branding a:hover {
             color: #fff;
         }
+
+        /* --- Digit Keypad Styles --- */
+
+        .keypad-digit-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .key-digit, .key-hex, .key-func {
+            border: 1px solid rgba(0,0,0,0.5);
+            border-top-color: rgba(255,255,255,0.2);
+            border-left-color: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 12px 10px;
+            font-family: var(--font-main);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #eee;
+            cursor: pointer;
+            transition: all 0.1s ease-out;
+            background: linear-gradient(145deg, #585858, #4a4a4a);
+            box-shadow: 3px 3px 6px var(--key-shadow), -3px -3px 6px #6a6a6a;
+        }
+
+        .key-digit:active, .key-hex:active, .key-func:active {
+            box-shadow: inset 2px 2px 4px var(--key-shadow), inset -2px -2px 4px #6a6a6a;
+            transform: translateY(1px);
+        }
+
+        .key-func {
+            background: linear-gradient(145deg, #8a8a8a, #7a7a7a);
+            color: #222;
+        }
+
+        .key-hex[disabled] {
+            background: var(--key-bg);
+            opacity: 0.3;
+            cursor: not-allowed;
+            box-shadow: inset 2px 2px 4px var(--key-shadow);
+        }
+
+        .key-digit[data-key="0"] {
+            grid-column: span 2;
+        }
     </style>
 </head>
 <body>
@@ -456,6 +502,37 @@
                     <span class="op-name">REV</span>
                 </button>
             </div>
+
+            <div class="keypad-digit-grid">
+                <button class="key-hex" data-key="A">A</button>
+                <button class="key-hex" data-key="B">B</button>
+                <button id="key-clear" class="key-func">C</button>
+                <button id="key-backspace" class="key-func">⌫</button>
+
+                <button class="key-hex" data-key="C">C</button>
+                <button class="key-hex" data-key="D">D</button>
+                <button class="key-digit" data-key="7">7</button>
+                <button class="key-digit" data-key="8">8</button>
+                <button class="key-digit" data-key="9">9</button>
+
+                <button class="key-hex" data-key="E">E</button>
+                <button class="key-hex" data-key="F">F</button>
+                <button class="key-digit" data-key="4">4</button>
+                <button class="key-digit" data-key="5">5</button>
+                <button class="key-digit" data-key="6">6</button>
+
+                <div></div>
+                <div></div>
+                <button class="key-digit" data-key="1">1</button>
+                <button class="key-digit" data-key="2">2</button>
+                <button class="key-digit" data-key="3">3</button>
+
+                <div></div>
+                <div></div>
+                <div></div>
+                <button class="key-digit" data-key="0">0</button>
+            </div>
+
              <div class="keypad-row bottom-row">
                 <div class="bit-width-control">
                     <label for="bit-width">BITS</label>
@@ -722,6 +799,7 @@
                 this.initializeElements();
                 this.attachEventListeners();
                 this.updateDisplay();
+                this.updateModeUI(); // Initial UI setup
             }
 
             initializeElements() {
@@ -754,6 +832,12 @@
                     reverse: document.getElementById('op-reverse')
                 };
 
+                // Keypad buttons
+                this.digitKeys = document.querySelectorAll('.key-digit, .key-hex');
+                this.hexKeys = document.querySelectorAll('.key-hex');
+                this.clearKey = document.getElementById('key-clear');
+                this.backspaceKey = document.getElementById('key-backspace');
+
                 // Copy buttons
                 this.copyBtns = document.querySelectorAll('.copy-btn');
             }
@@ -767,13 +851,7 @@
                 // Number input
                 this.numberInput.addEventListener('input', this.debounce(() => {
                     this.updateNumber(this.numberInput.value);
-                }, 300));
-
-                this.numberInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        this.updateNumber(this.numberInput.value);
-                    }
-                });
+                }, 200));
 
                 // Bit width input
                 this.bitWidthInput.addEventListener('change', () => {
@@ -786,10 +864,17 @@
                 this.opBtns.shiftRight.addEventListener('click', () => this.performOperation('shift-right'));
                 this.opBtns.reverse.addEventListener('click', () => this.performOperation('reverse-bits'));
 
+                // Keypad Listeners
+                this.digitKeys.forEach(key => {
+                    key.addEventListener('click', () => this._handleInput(key.dataset.key));
+                });
+                this.clearKey.addEventListener('click', () => this._handleClear());
+                this.backspaceKey.addEventListener('click', () => this._handleBackspace());
+
+
                 // Copy buttons
                 this.copyBtns.forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        // Use e.currentTarget to ensure the button is the target, not the SVG icon
                         const targetId = e.currentTarget.getAttribute('data-value');
                         const targetElement = document.getElementById(targetId);
                         this.copyToClipboard(targetElement.textContent, e.currentTarget);
@@ -798,45 +883,54 @@
 
                 // Keyboard shortcuts
                 document.addEventListener('keydown', (e) => {
-                    // Only process shortcuts when not typing in input fields
                     if (e.target.tagName === 'INPUT' || e.target.tagName === 'DETAILS') return;
                     
                     const key = e.key.toLowerCase();
-                    switch (key) {
-                        case 'd':
-                            e.preventDefault();
-                            this.setMode('dec');
-                            break;
-                        case 'h':
-                            e.preventDefault();
-                            this.setMode('hex');
-                            break;
-                        case 'o':
-                            e.preventDefault();
-                            this.setMode('oct');
-                            break;
-                        case 'b':
-                            e.preventDefault();
-                            this.setMode('bin');
-                            break;
-                        case 'i':
-                            e.preventDefault();
-                            this.performOperation('invert');
-                            break;
-                        case 'l':
-                            e.preventDefault();
-                            this.performOperation('shift-left');
-                            break;
-                        case 'r':
-                            e.preventDefault();
-                            this.performOperation('shift-right');
-                            break;
-                        case 'v':
-                            e.preventDefault();
-                            this.performOperation('reverse-bits');
-                            break;
+                    const validHex = 'abcdef';
+                    const validDec = '0123456789';
+
+                    if (validDec.includes(key) || (this.currentMode === 'hex' && validHex.includes(key))) {
+                        e.preventDefault();
+                        this._handleInput(key.toUpperCase());
+                    } else if (key === 'backspace') {
+                        e.preventDefault();
+                        this._handleBackspace();
+                    } else if (key === 'enter' || key === '=') {
+                         e.preventDefault();
+                        // Potentially useful for future expression evaluation
+                    } else {
+                        switch (key) {
+                            case 'd': e.preventDefault(); this.setMode('dec'); break;
+                            case 'h': e.preventDefault(); this.setMode('hex'); break;
+                            case 'o': e.preventDefault(); this.setMode('oct'); break;
+                            case 'b': e.preventDefault(); this.setMode('bin'); break;
+                            case 'i': e.preventDefault(); this.performOperation('invert'); break;
+                            case 'l': e.preventDefault(); this.performOperation('shift-left'); break;
+                            case 'r': e.preventDefault(); this.performOperation('shift-right'); break;
+                            case 'v': e.preventDefault(); this.performOperation('reverse-bits'); break;
+                        }
                     }
                 });
+            }
+
+            _handleInput(key) {
+                // Prevent leading zeros if input is empty
+                if (this.numberInput.value === '0') {
+                    this.numberInput.value = '';
+                }
+                this.numberInput.value += key;
+                // Manually trigger input event to update calculations
+                this.numberInput.dispatchEvent(new Event('input'));
+            }
+
+            _handleClear() {
+                this.numberInput.value = '';
+                this.numberInput.dispatchEvent(new Event('input'));
+            }
+
+            _handleBackspace() {
+                this.numberInput.value = this.numberInput.value.slice(0, -1);
+                this.numberInput.dispatchEvent(new Event('input'));
             }
 
             setMode(mode) {
@@ -924,15 +1018,32 @@
 
                 // Update input placeholder
                 const placeholders = {
-                    dec: 'Enter decimal number...',
-                    hex: 'Enter hex number...',
-                    oct: 'Enter octal number...',
-                    bin: 'Enter binary number...'
+                    dec: 'Enter decimal...',
+                    hex: 'Enter hexadecimal...',
+                    oct: 'Enter octal...',
+                    bin: 'Enter binary...'
                 };
                 this.numberInput.placeholder = placeholders[this.currentMode];
-                 // Update input field to reflect current number in new mode
-                if (this.currentNumber !== 0n || this.numberInput.value.trim() !== '') {
-                    this.numberInput.value = this.converter.formatNumber(this.currentNumber, this.currentMode).replace(/0x|0o/,'');
+
+                // Update input field to reflect current number in new mode
+                if (this.numberInput.value.trim() !== '') {
+                    this.numberInput.value = this.converter.formatNumber(this.currentNumber, this.currentMode).replace(/0[xob]/, '');
+                }
+
+                // Enable/disable hex keys based on mode
+                this.hexKeys.forEach(key => {
+                    key.disabled = this.currentMode !== 'hex';
+                });
+
+                // Clear input if it contains invalid characters for the new mode
+                const validChars = {
+                    dec: /[^0-9]/g,
+                    hex: /[^0-9a-fA-F]/gi,
+                    oct: /[^0-7]/g,
+                    bin: /[^01]/g
+                };
+                if (this.numberInput.value.match(validChars[this.currentMode])) {
+                    this._handleClear();
                 }
             }
 
