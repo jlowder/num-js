@@ -103,10 +103,12 @@
             bottom: 0;
             background-image: radial-gradient(circle, rgba(255,255,255,0.05) 20%, transparent 80%);
             opacity: 0.5;
+            pointer-events: none; /* Allow clicks to pass through */
         }
 
         #main-display {
-            display: flex;
+            display: grid; /* Use grid to align perfectly with items below */
+            grid-template-columns: 40px 1fr 28px;
             align-items: center;
             padding: 8px 5px;
             margin-bottom: 10px;
@@ -117,8 +119,8 @@
             font-weight: bold;
             color: var(--lcd-text);
             text-shadow: 1px 1px 0px rgba(255,255,255,0.1);
-            margin-right: 10px;
             font-size: 1rem;
+            grid-column: 1 / 2;
         }
 
         #number-input {
@@ -130,8 +132,9 @@
             font-size: 2.2rem;
             color: var(--lcd-text);
             text-align: right;
-            padding-right: 10px;
             text-shadow: 1px 1px 0px rgba(255,255,255,0.1);
+            grid-column: 2 / 3;
+            width: 100%;
         }
 
         #number-input::placeholder {
