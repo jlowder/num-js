@@ -389,8 +389,43 @@
         .keypad-digit-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(4, 1fr);
             gap: 10px;
             margin-top: 10px;
+        }
+
+        /* --- Explicit Grid Placement for Keys --- */
+
+        /* Row 1 */
+        .key-hex[data-key="A"] { grid-area: 1 / 1; }
+        .key-hex[data-key="B"] { grid-area: 1 / 2; }
+        .key-hex[data-key="C"] { grid-area: 1 / 3; }
+        .key-hex[data-key="D"] { grid-area: 1 / 4; }
+        .key-hex[data-key="E"] { grid-area: 1 / 5; }
+
+        /* Row 2 */
+        .key-hex[data-key="F"] { grid-area: 2 / 1; }
+        .key-digit[data-key="7"] { grid-area: 2 / 2; }
+        .key-digit[data-key="8"] { grid-area: 2 / 3; }
+        .key-digit[data-key="9"] { grid-area: 2 / 4; }
+        #key-clear { grid-area: 2 / 5; }
+
+        /* Row 3 */
+        .key-digit[data-key="4"] { grid-area: 3 / 1; }
+        .key-digit[data-key="5"] { grid-area: 3 / 2; }
+        .key-digit[data-key="6"] { grid-area: 3 / 3; }
+        #key-backspace { grid-area: 3 / 4; }
+
+        /* Row 4 */
+        .key-digit[data-key="1"] { grid-area: 4 / 1; }
+        .key-digit[data-key="2"] { grid-area: 4 / 2; }
+        .key-digit[data-key="3"] { grid-area: 4 / 3; }
+
+        /* Tall 0 Key */
+        .key-digit[data-key="0"] {
+            grid-column: 5 / 6;
+            grid-row: 3 / 5; /* Span rows 3 and 4 */
+            height: 100%;
         }
 
         .key-digit, .key-hex, .key-func {
@@ -426,9 +461,6 @@
             box-shadow: inset 2px 2px 4px var(--key-shadow);
         }
 
-        .key-digit[data-key="0"] {
-            grid-column: span 2;
-        }
     </style>
 </head>
 <body>
@@ -506,33 +538,27 @@
             </div>
 
             <div class="keypad-digit-grid">
+                <!-- This container will be a 4x5 CSS Grid. Items are placed via CSS. -->
                 <button class="key-hex" data-key="A">A</button>
                 <button class="key-hex" data-key="B">B</button>
-                <button id="key-clear" class="key-func">C</button>
-                <button id="key-backspace" class="key-func">⌫</button>
-
                 <button class="key-hex" data-key="C">C</button>
                 <button class="key-hex" data-key="D">D</button>
+                <button class="key-hex" data-key="E">E</button>
+                <button class="key-hex" data-key="F">F</button>
+
                 <button class="key-digit" data-key="7">7</button>
                 <button class="key-digit" data-key="8">8</button>
                 <button class="key-digit" data-key="9">9</button>
-
-                <button class="key-hex" data-key="E">E</button>
-                <button class="key-hex" data-key="F">F</button>
                 <button class="key-digit" data-key="4">4</button>
                 <button class="key-digit" data-key="5">5</button>
                 <button class="key-digit" data-key="6">6</button>
-
-                <div></div>
-                <div></div>
                 <button class="key-digit" data-key="1">1</button>
                 <button class="key-digit" data-key="2">2</button>
                 <button class="key-digit" data-key="3">3</button>
-
-                <div></div>
-                <div></div>
-                <div></div>
                 <button class="key-digit" data-key="0">0</button>
+
+                <button id="key-clear" class="key-func">C</button>
+                <button id="key-backspace" class="key-func">⌫</button>
             </div>
 
              <div class="keypad-row bottom-row">
