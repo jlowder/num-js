@@ -458,7 +458,7 @@
             color: #222;
         }
 
-        .key-hex[disabled] {
+        .key-hex[disabled], .key-digit[disabled] {
             background: var(--key-bg);
             opacity: 0.3;
             cursor: not-allowed;
@@ -867,6 +867,7 @@
 
                 // Keypad buttons
                 this.digitKeys = document.querySelectorAll('.key-digit, .key-hex');
+                this.numericDigitKeys = document.querySelectorAll('.key-digit');
                 this.hexKeys = document.querySelectorAll('.key-hex');
                 this.clearKey = document.getElementById('key-clear');
                 this.backspaceKey = document.getElementById('key-backspace');
@@ -1071,6 +1072,21 @@
                 // Enable/disable hex keys based on mode
                 this.hexKeys.forEach(key => {
                     key.disabled = this.currentMode !== 'hex';
+                });
+
+                // Enable/disable numeric keys based on mode
+                this.numericDigitKeys.forEach(key => {
+                    const keyValue = parseInt(key.dataset.key, 10);
+                    let disabled = false;
+                    switch (this.currentMode) {
+                        case 'oct':
+                            if (keyValue >= 8) disabled = true;
+                            break;
+                        case 'bin':
+                            if (keyValue >= 2) disabled = true;
+                            break;
+                    }
+                    key.disabled = disabled;
                 });
 
                 // Clear input if it contains invalid characters for the new mode
